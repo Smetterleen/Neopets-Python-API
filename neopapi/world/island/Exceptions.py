@@ -12,3 +12,7 @@ class PetNotFoundException(IslandTrainingSchoolException):
 class PetNotOnCourseException(IslandTrainingSchoolException):
     def __init__(self, pet_name):
         Exception.__init__(self, 'Pet is not on course in training school: ' + pet_name)
+
+class PetAlreadyOnCourseException(IslandTrainingSchoolException):
+    def __init__(self, pet_name):
+        Exception.__init__(self, 'Pet is already on a course in training school: ' + pet_name)

@@ -187,6 +187,11 @@ class Browser(object):
         """
         return self._get(url, base_url, post_dict, delay_ms=delay)
     
+    def back(self):
+        # Go back one page
+        # TODO: implement
+        raise NotImplementedError
+    
     def refresh(self):
         # TODO: implement
         raise NotImplementedError
