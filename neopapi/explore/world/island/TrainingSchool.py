@@ -3,6 +3,7 @@ from neopapi.explore.world.island.Exceptions import UnknownStatException,\
 from neopapi.core.browse import register_page
 from neopapi.core.browse.Browser import BROWSER
 import re
+from datetime import timedelta
 
 """
 This module provides the API for the Mystery Island Training school
@@ -60,6 +61,20 @@ def get_course_status(pet_name):
     elif 'Time till course finishes' in status_td.text:
         return TRAINING
     return IDLE
+
+def get_course_time_remaining(pet_name):
+    page = BROWSER.goto('island/training.phtml?type=status')
+    
+    status_td = page.find('td', text=re.compile(pet_name + '.*')).find_parent('tr').find_next_sibling('tr').find_all('td')[1]
+    
+    if 'Time till course finishes' not in status_td.text:
+        raise PetNotOnCourseException(pet_name)
+    
+    time_parts = status_td.find('b').text.split(',')
+    hours = int(time_parts[0].replace('hrs', '').strip())
+    minutes = int(time_parts[1].replace('minutes', '').strip())
+    seconds = int(time_parts[2].replace('seconds', '').strip())
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 def start_course(pet_name, stat):
     '''
@@ -119,9 +134,9 @@ def pay_course(pet_name):
     if not 'This course has not been paid for yet' in status_td.text:
         raise PetNotOnCourseException(pet_name)
     
-    result_page = BROWSER.goto('island/process_training.phtml?type=pay&pet_name=' + pet_name)
-    # TODO: check if everything went all right
-    return result_page
+    BROWSER._get('island/process_training.phtml?type=pay&pet_name=' + pet_name)
+    
+    return get_course_status(pet_name)
 
 def finish_course(pet_name):
     '''
