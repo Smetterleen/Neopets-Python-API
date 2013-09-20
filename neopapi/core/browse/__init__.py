@@ -47,7 +47,13 @@ def _get_chain(from_page, to_page):
     return None
     
 def find_path(from_url, to_url):
-    start_page = _sitemap[from_url]
+    try:
+        start_page = _sitemap[from_url]
+    except KeyError:
+        start_page = Page(from_url)
+        for page in _sitemap.values():
+            if page.reachable_from_everywhere:
+                start_page.links.append(page.url)
     end_page = _sitemap[to_url]
     
     chain = _get_chain(start_page, end_page)

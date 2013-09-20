@@ -85,7 +85,7 @@ class Browser(object):
         '''
         return timedelta(milliseconds=uniform(self.min_wait, self.max_wait))
 
-    def _get(self, url, base_url, post_dict=None, referer=None, delay_ms=0):
+    def _get(self, url, base_url='neopets.com', post_dict=None, referer=None, delay_ms=0):
         '''
         This is an internal method used by the get and post methods
         '''
@@ -116,7 +116,7 @@ class Browser(object):
                     # window
                     header['Referer'] = 'http://www.neopets.com/objects.phtml?type=inventory'
                 else:
-                    header['Referer'] = self.last_visited_url
+                    header['Referer'] = 'http://www.neopets.com/' + self.last_visited_url
         elif referer:
             # Given value: is this value
             header['Referer'] = referer
@@ -172,7 +172,8 @@ class Browser(object):
         
         if url == self.last_visited_url:
             return self.last_visited_page
-            
+        
+        
         url_chain = find_path(self.last_visited_url, url)
         for url in url_chain[:-1]:
             self._get(url, base_url, delay_ms=0)
