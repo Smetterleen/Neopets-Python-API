@@ -1,4 +1,4 @@
-from neopapi.world.island.Exceptions import UnknownStatException,\
+from neopapi.explore.world.island.Exceptions import UnknownStatException,\
     PetNotFoundException, PetNotOnCourseException, PetAlreadyOnCourseException
 from neopapi.core.browse import register_page
 from neopapi.core.browse.Browser import BROWSER
