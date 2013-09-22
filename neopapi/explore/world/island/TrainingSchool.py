@@ -1,5 +1,6 @@
 from neopapi.explore.world.island.Exceptions import UnknownStatException,\
-    PetNotFoundException, PetNotOnCourseException, PetAlreadyOnCourseException
+    PetNotFoundException, PetNotOnCourseException, PetAlreadyOnCourseException,\
+    StatTooHighException
 from neopapi.core.browse import register_page
 from neopapi.core.browse.Browser import BROWSER
 import re
@@ -16,6 +17,7 @@ register_page('island/training.phtml?type=status',
               ['island/training.phtml?type=status', 'island/training.phtml?type=courses'])
 register_page('island/training.phtml?type=courses',
               ['island/training.phtml?type=status', 'island/training.phtml?type=courses'])
+register_page('island/process_training.phtml')
 
 # Stats to train
 STATS = ['Level', 'Endurance', 'Strength', 'Defence', 'Agility']
@@ -29,7 +31,7 @@ def get_status(pet_name):
     Get the current status of the given pet in the island training school in the
     form of a dictionary
     '''
-    page = BROWSER.goto('island/training.phtml?type=status')
+    page = BROWSER.goto('island/training.phtml?type=status', force_refresh=True)
     
     pet_td = page.find('td', text=re.compile(pet_name + '.*'))
     if pet_td is None:
@@ -47,7 +49,7 @@ def get_status(pet_name):
     return info
 
 def get_course_status(pet_name):
-    page = BROWSER.goto('island/training.phtml?type=status')
+    page = BROWSER.goto('island/training.phtml?type=status', force_refresh=True)
     
     pet_td = page.find('td', text=re.compile(pet_name + '.*'))
     if pet_td is None:
@@ -63,7 +65,7 @@ def get_course_status(pet_name):
     return IDLE
 
 def get_course_time_remaining(pet_name):
-    page = BROWSER.goto('island/training.phtml?type=status')
+    page = BROWSER.goto('island/training.phtml?type=status', force_refresh=True)
     
     status_td = page.find('td', text=re.compile(pet_name + '.*')).find_parent('tr').find_next_sibling('tr').find_all('td')[1]
     
@@ -96,6 +98,10 @@ def start_course(pet_name, stat):
     if 'That pet is already doing a course' in result_page.text:
         BROWSER.back()
         raise PetAlreadyOnCourseException(pet_name)
+    
+    if 'No statistic can go above twice your pet' in result_page.text:
+        BROWSER.back()
+        raise StatTooHighException(pet_name)
     
     # TODO: check if everything went all right
     
@@ -142,7 +148,7 @@ def finish_course(pet_name):
     '''
     This method finishes the current course of the given pet if it is finished
     '''
-    page = BROWSER.goto('island/training.phtml?type=status')
+    page = BROWSER.goto('island/training.phtml?type=status', force_refresh=True)
     
     pet_td = page.find('td', text=re.compile(pet_name + '.*'))
     if pet_td is None:

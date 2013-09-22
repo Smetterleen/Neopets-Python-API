@@ -16,3 +16,7 @@ class PetNotOnCourseException(IslandTrainingSchoolException):
 class PetAlreadyOnCourseException(IslandTrainingSchoolException):
     def __init__(self, pet_name):
         Exception.__init__(self, 'Pet is already on a course in training school: ' + pet_name)
+
+class StatTooHighException(IslandTrainingSchoolException):
+    def __init__(self, pet_name):
+        Exception.__init__(self, 'Pet has too high stats, train level first: ' + pet_name)
