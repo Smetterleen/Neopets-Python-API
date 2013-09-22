@@ -6,10 +6,10 @@ from neopapi.core.browse import register_page
 register_page('logout.phtml', reachable_from_everywhere=True)
 
 def is_logged_in(username=None):
-    if BROWSER.last_visited_page is None or BROWSER.last_visited_page.find('td', class_='user') is None:
+    if BROWSER.last_visited_page() is None or BROWSER.last_visited_page().find('td', class_='user') is None:
         BROWSER.goto('')
     
-    userlink = BROWSER.last_visited_page.find("td", class_="user").find("a", href=re.compile("userlookup"))
+    userlink = BROWSER.last_visited_page().find("td", class_="user").find("a", href=re.compile("userlookup"))
         
     if userlink is not None:
         if username is None or username.lower() == userlink.text.lower():
@@ -44,10 +44,10 @@ def logout():
 def cash_on_hand():
     if not is_logged_in():
         raise LoginRequiredException(msg='Login required for checking Cash on Hand')
-    if BROWSER.last_visited_page is None or BROWSER.last_visited_page.find('td', class_='user') is None:
+    if BROWSER.last_visited_page is None or BROWSER.last_visited_page().find('td', class_='user') is None:
         BROWSER.goto('')
         
-    return int(BROWSER.last_visited_page.find("td", class_="user").find("a", id="npanchor").text.strip().replace(',', ''))
+    return int(BROWSER.last_visited_page().find("td", class_="user").find("a", id="npanchor").text.strip().replace(',', ''))
 
 def active_pet():
     # TODO: implement
