@@ -9,7 +9,8 @@ from random import uniform
 import os, urllib, logging, re, time, gzip
 from neopapi.core.browse import find_path
 from http import cookiejar
-from neopapi.core.Exceptions import LoginRequiredException
+from neopapi.core.Exceptions import LoginRequiredException,\
+    EndOfHistoryException
 
 
 class Browser(object):
@@ -34,6 +35,12 @@ class Browser(object):
                'Accept-Encoding' : 'gzip, deflate',
                'Accept-Charset' : 'utf-8;q=0.7,*;q=0.7'}
     
+    '''
+    Contains for pages of history for the browser. History is emptied after a post request, so
+    a request can never be double posted. Only the 10 most recent pages will be kept in history
+    '''
+    history = []
+    
     
     def __init__(self):
         self.time_of_last_get = Time.NST_epoch()
@@ -47,9 +54,6 @@ class Browser(object):
         redirectHandler = Redirecter()
          
         self.opener = urllib.request.build_opener(redirectHandler, cookieHandler)
-        
-        self.last_visited_url = None
-        self.last_visited_page = None
         
         core_config = ConfigParser()
         core_config.read(Paths.CORE_CONFIG_FILE)
@@ -77,6 +81,12 @@ class Browser(object):
         else:
             logging.warn('Browser configuration: unrecognized option for not_connected_handling setting, using default.')
             self.not_connected_handler = 0
+    
+    def _save_history(self, url, page):
+        if len(self.history) >= 10:
+            del self.history[0]
+        self.history.append({'url': url, 
+                             'page': page})
 
     def _get_wait_time(self):
         '''
@@ -109,16 +119,18 @@ class Browser(object):
         header = Browser.HEADER
         if referer is None:
             # Default value: use previously visited page
-            if self.last_visited_url:
-                if self.last_visited_url == 'http://www.neopets.com/useobject.phtml':
+            if self.history:
+                if self.last_visited_url() == 'useobject.phtml':
                     # If the user has just used an object, we do not want to browse with this
                     # page as referer, because a user would normally browse from the inventory
                     # window
                     header['Referer'] = 'http://www.neopets.com/objects.phtml?type=inventory'
                 else:
-                    header['Referer'] = 'http://www.neopets.com/' + self.last_visited_url
+                    header['Referer'] = 'http://www.neopets.com/' + self.last_visited_url()
         elif referer:
             # Given value: is this value
+            if 'http://www.neopets.com/' not in referer:
+                referer = 'http://www.neopets.com/' + referer
             header['Referer'] = referer
             
         # Make the request
@@ -126,7 +138,7 @@ class Browser(object):
             try:
                 req = urllib.request.Request(full_url, data, header)            
                 handle = self.opener.open(req)
-                self.last_visited_url = handle.geturl().replace('http://www.' + base_url + '/', '')
+                last_visited_url = handle.geturl().replace('http://www.' + base_url + '/', '')
                 self.retries = 0
                 break
             except (HTTPError, URLError):
@@ -142,7 +154,7 @@ class Browser(object):
         # Save the cookies
         self.cj.save(Paths.COOKIES_FILE)
         
-        if 'http://www.neopets.com/login/index.phtml' in self.last_visited_url and not url == self.last_visited_url:
+        if 'http://www.neopets.com/login/index.phtml' in last_visited_url and not url == last_visited_url:
             raise LoginRequiredException(url)
         
         # Get the request html; decode if necessary
@@ -155,11 +167,13 @@ class Browser(object):
         page = BeautifulSoup(page)
         
         self.time_of_last_get = current_time
-        self.last_visited_page = page
+        
+        # Put the request url in the browsing history
+        self._save_history(last_visited_url, page)
         
         return page
 
-    def goto(self, url, base_url='neopets.com', delay=0):
+    def goto(self, url, base_url='neopets.com', delay=0, force_refresh=False):
         """
         Send the browser to the given url.
         To emulate human behaviour, the browser will find the shortest path from the
@@ -167,16 +181,18 @@ class Browser(object):
         Returns a beautifulsoup of the requested page.
         
         """
-        if self.last_visited_url is None:
+        if not self.history:
             self._get('', base_url, delay_ms=delay)
         
-        if url == self.last_visited_url:
-            return self.last_visited_page
+        if url == self.last_visited_url():
+            if force_refresh:
+                return self.refresh()
+            return self.last_visited_page()
         
-        
-        url_chain = find_path(self.last_visited_url, url)
+        url_chain = find_path(self.last_visited_url(), url)
         for url in url_chain[:-1]:
             self._get(url, base_url, delay_ms=0)
+        
         return self._get(url_chain[-1], base_url, delay_ms=delay)
     
     def post(self, url, post_dict, base_url='neopets.com', delay=0):
@@ -189,12 +205,32 @@ class Browser(object):
         return self._get(url, base_url, post_dict, delay_ms=delay)
     
     def back(self):
-        # Go back one page
-        # TODO: implement
-        raise NotImplementedError
+        try:
+            # Go back one page
+            last_page = self.history.pop()
+        except IndexError:
+            raise EndOfHistoryException()
+        return last_page['page']
     
     def refresh(self):
-        # TODO: implement
-        raise NotImplementedError
+        if self.last_visited_url():
+            referer = None
+            if len(self.history) > 1:
+                referer = self.history[-2]['url']
+            
+            return self._get(self.last_visited_url(), referer=referer)
+        return None
+    
+    def last_visited_url(self):
+        try:
+            return self.history[-1]['url']
+        except IndexError:
+            return None
+    
+    def last_visited_page(self):
+        try:
+            return self.history[-1]['page']
+        except IndexError:
+            return None
 
 BROWSER = Browser()

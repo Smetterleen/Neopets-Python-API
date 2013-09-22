@@ -9,6 +9,7 @@ class Page(object):
 
 def register_page(url, links=[], reachable_from_everywhere=False):
     new_page = Page(url, links, reachable_from_everywhere)
+    new_page.links.append(new_page.url)
     _sitemap[url] = new_page
     
     for link in links:
