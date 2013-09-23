@@ -91,8 +91,8 @@ class StatOptimizer:
             return TrainingSchool.LEVEL
         
         else:
-            next_max_lvl = self.get_max_bracket_level(max_lvl + 1)
-            next_margin = self.get_current_bracket_margin(next_max_lvl)
+            next_max_lvl = self._get_max_bracket_level(max_lvl + 1)
+            next_margin = self._get_current_bracket_margin(next_max_lvl)
             if self.defence > 2*cur_lvl or self.strength > 2*cur_lvl or \
                self.movement > 2*cur_lvl or self.hp > 3*cur_lvl:
                 # If any stat is above its limits, level has to be trained.
@@ -109,16 +109,16 @@ class StatOptimizer:
                 return TrainingSchool.HP
         
     def _get_max_bracket_level(self, level):
-        brackets = self.level_brackets[self.school]
+        brackets = self.level_brackets
         for bracket in brackets:
             if bracket >= level:
                 return bracket
         return self.level_brackets[self.school][-1]*10
     
     def _get_current_bracket_margin(self, level):
-        margins = self.bracket_margins[self.school]
-        bracket_max = self.get_max_bracket_level(level)
-        if not bracket_max in self.level_brackets[self.school]:
-            return self.bracket_margins[self.school][-1]
-        index = self.level_brackets[self.school].index(self.get_max_bracket_level(level))
+        margins = self.bracket_margins
+        bracket_max = self._get_max_bracket_level(level)
+        if not bracket_max in self.level_brackets:
+            return self.bracket_margins[-1]
+        index = self.level_brackets.index(self._get_max_bracket_level(level))
         return margins[index]
