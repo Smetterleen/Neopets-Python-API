@@ -7,4 +7,4 @@ def  run():
         Bank.collect_interest()
     except BankException:
         pass
-    return Time.NST_tommorow()
+    return Time.NST_tomorrow()

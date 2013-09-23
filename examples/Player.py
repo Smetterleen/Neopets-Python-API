@@ -2,6 +2,7 @@ import Trainer
 import time
 import Banker
 from neopapi.core import Time
+from datetime import timedelta
 
 tasks = []
 
@@ -16,7 +17,7 @@ while True:
     first_task = ordered_tasks.pop()
     print('Plugin ' + first_task[1].__name__ + ' is first on the list')
     if first_task[0] > Time.NST_time():
-        print('Waiting until ' + first_task[0].strftime('%x %X') + ' to start ' + first_task[1].__name__)
+        print('Waiting until %s NST (localtime: %s) to start %s' % (first_task[0].strftime('%x %X'), (first_task[0] + timedelta(hours=10)).strftime('%X'), first_task[1].__name__))
         time.sleep((first_task[0] - Time.NST_time()).total_seconds())
     print('Running ' + first_task[1].__name__)
     next_task_time = first_task[1].run()
