@@ -21,7 +21,7 @@ class Item(object):
 
 def items():
     """
-    Returns an list containing the items in the users inventory
+    Returns a list containing the items in the users inventory
     
     """
     inv_page = BROWSER.goto('inventory.phtml')
@@ -53,6 +53,8 @@ def contains(item_list):
     returned.
     
     """
+    # FIXME: als er 2 dezelfde items in de lijst zitten, moet dit item
+    #        ook 2 keer in de inventory zitten
     inv_page = BROWSER.goto('inventory.phtml')
     
     is_string = isinstance(item_list, str)
