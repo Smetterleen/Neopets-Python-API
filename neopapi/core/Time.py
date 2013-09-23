@@ -26,7 +26,7 @@ def NST_datetime(given_datetime):
     return datetime(given_datetime.year, given_datetime.month, given_datetime.day, given_datetime.hour,
                     given_datetime.minute, given_datetime.second, tzinfo=timezone)
     
-def NST_tommorow():
+def NST_tomorrow():
     return datetime.combine(date.today() + timedelta(days=1), time(0,5,0,tzinfo=timezone))
 
 def parse_time_string(datestring):
