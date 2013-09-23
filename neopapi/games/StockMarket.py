@@ -23,3 +23,12 @@ def sell_stock(stock_name, amount=None):
     """
     # TODO: implement
     raise NotImplementedError
+
+def get_stock_prices():
+    """
+    Returns a list containing all stock in the stock market and
+    their price
+    
+    """
+    # TODO: implement
+    raise NotImplementedError
