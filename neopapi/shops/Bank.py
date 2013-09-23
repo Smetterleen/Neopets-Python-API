@@ -2,7 +2,7 @@ from neopapi.core.browse import register_page
 from neopapi.core.browse.Browser import BROWSER
 import re
 from neopapi.shops.Exceptions import BankException, WrongPINException
-from neopapi.main import Account
+from neopapi.main import User
 from neopapi.main.Exceptions import OutOfMoneyException
 
 register_page('bank.phtml',
@@ -80,7 +80,6 @@ def withdraw(amount, pin=None):
     bank_page = BROWSER.post('process_bank.phtml', post_dict)
         
     if 'Sorry, but the PIN we have stored is not matching the one you entered' in bank_page.text:
-        info = bank_page.find('div', class_='errormess')
         raise WrongPINException('Sorry, but the PIN neopets has stored is not matching the one you entered')
     if 'You do not have enough Neopoints' in bank_page.text:
         raise BankException('Not enought money on bank account to withdraw that amount')
@@ -94,7 +93,7 @@ def deposit(amount):
     """
     BROWSER.goto('bank.phtml')
     
-    if Account.cash_on_hand() < amount:
+    if User.cash_on_hand() < amount:
         raise OutOfMoneyException('Depositing ' + amount + 'np on bank account')
     
     post_dict = {'amount': amount,
@@ -143,7 +142,7 @@ def upgrade_account(extra_amount_to_deposit=1):
         # Not enough money on bank account to upgrade
         return get_current_balance()
     
-    if extra_amount_to_deposit > Account.cash_on_hand():
+    if extra_amount_to_deposit > User.cash_on_hand():
         raise OutOfMoneyException('Depositing ' + extra_amount_to_deposit + 'np while upgrading bank account')
     
     new_account_type_index = current_account_type_index
