@@ -38,6 +38,9 @@ def run():
             print('Selling %d shares of %s@%dnp' % (amount_owned, stock.name, stock.price))
             StockMarket.sell_stock(stock.name, amount_owned, pin=secrets.pin)
     tm = Time.NST_time()
+    if tm.hour > 13 or tm.hour < 23:
+        print('Waiting until tomorrow for updates to simulate sleep')
+        return tm.replace(hour=23, minute=1, seconds=0)
     next_update_time = tm - timedelta(minutes=(tm.minute % 30),
                                       seconds=tm.second,
                                       microseconds=tm.microsecond) + timedelta(minutes=31)

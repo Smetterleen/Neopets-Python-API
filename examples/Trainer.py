@@ -47,7 +47,7 @@ def run():
         elif status == TrainingSchool.TRAINING:
             print('Status is Training, waiting for course to finish')
             time_remaining = TrainingSchool.get_course_time_remaining(pet)
-            print('Trainer is done for ' + str(time_remaining) + ' until ' + (Time.NST_time() + time_remaining).strftime('%x %X'))
+            print('Training is done in %dh%dm%ds at %s' % (time_remaining.hours, time_remaining.minutes, time_remaining.seconds, (Time.NST_time() + time_remaining).strftime('%x %X')))
             return (Time.NST_time() + time_remaining)
         elif status == TrainingSchool.FINISHED:
             print('Status is Finished, finishing course')
