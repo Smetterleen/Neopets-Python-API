@@ -3,7 +3,7 @@ from datetime import tzinfo, timedelta, datetime, date, time
 class NST(tzinfo):
     
     def utcoffset(self, dt):
-        return timedelta(hours=-8)
+        return timedelta(hours=-7)
 
     def tzname(self, dt):
         return "NST"

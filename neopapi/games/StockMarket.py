@@ -2,9 +2,13 @@ from neopapi.core.browse.Browser import BROWSER
 import re
 from bs4 import BeautifulSoup
 from neopapi.games.Exceptions import StockException,\
-    StockNotInPortfolioException
+    StockNotInPortfolioException, TooManyStocksBoughtException
 from neopapi.main.Exceptions import OutOfMoneyException
 from neopapi.shops.Exceptions import WrongPINException
+from neopapi.core.browse import register_page
+
+register_page('stockmarket.phtml',
+              ['stockmarket.phtml?type=portfolio', 'stockmarket.phtml?type=buy'])
 
 def portfolio():
     """
@@ -26,7 +30,7 @@ def portfolio():
         parts = stock_element.find_all('td')
         name = parts[1].find('a').text
         owned_stocks[name] = purchase_list
-    return owned_stocks
+    return Portfolio(owned_stocks)
 
 def buy_stock(stock_name, amount=1000):
     """
@@ -43,7 +47,7 @@ def buy_stock(stock_name, amount=1000):
                      'type': 'buy'}
         bought_page = BROWSER.post('process_stockmarket.phtml', post_dict)
         if 'Sorry, that would take you over the daily purchase limit of 1000  shares' in bought_page.text:
-            raise StockException(stock_name, amount)
+            raise TooManyStocksBoughtException(stock_name, amount)
         elif 'You cannot afford that!' in bought_page.text:
             raise OutOfMoneyException()
     return portfolio()
@@ -108,7 +112,7 @@ def get_stock_prices():
         stock_info = stock.split()
         if stock_info[0] in stocks:
             break
-        stock = Stock(name=stock_info[0], current_price=int(stock_info[1]), change=stock_info[2])
+        stock = Stock(name=stock_info[0], price=int(stock_info[1]), change=stock_info[2])
         stocks.append(stock)
     return stocks
 
@@ -131,3 +135,16 @@ class Purchase(object):
     
     def __repr__(self):
         return str(self.number) + '@' + str(self.price) + 'np'
+
+class Portfolio(object):
+    
+    def __init__(self, purchases):
+        self.purchases = purchases
+    
+    def amount_owned(self, stock_name):
+        try:
+            stock_purchases = self.purchases[stock_name]
+            return sum([stock_purchase.amount for stock_purchase in stock_purchases])
+        except KeyError:
+            return 0
+        
