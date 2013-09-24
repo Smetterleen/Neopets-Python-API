@@ -52,6 +52,8 @@ except Exception as e:
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP(secrets.smtp_server, secrets.smtp_port)
+    s.ehlo()
+    s.starttls()
     s.login(secrets.email, secrets.email_pw)
     s.sendmail(secrets.email, [secrets.email], msg.as_string())
     s.quit()
