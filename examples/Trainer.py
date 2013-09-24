@@ -1,15 +1,12 @@
-from neopapi.main import User, Inventory
+from neopapi.main import Inventory
 from neopapi.explore.world.island import TrainingSchool
 from neopapi.shops import ShopWizard
 from neopapi.explore.world.island.Exceptions import StatTooHighException
 from neopapi.core import Time
+from neopapi.shops.Exceptions import ItemOutOfStockException
 
 def run():
     while True:
-        if not User.is_logged_in("de_meester_1989"):
-            print("User is not logged in. Logging in")
-            User.login("de_meester_1989", "Ka8st9je")
-        
         pet = "Icicle202"
         
         status = TrainingSchool.get_course_status(pet)
@@ -33,12 +30,17 @@ def run():
                     print(stone + ' already present in Inventory')
                     continue
                 print('Looking for ' + stone)
-                cheapest = None
-                for _ in range(3):
-                    results = ShopWizard.search(stone)
-                    if cheapest is None or cheapest.price > results[0].price:
-                        cheapest = results[0]
-                cheapest.buy()
+                while True:
+                    cheapest = None
+                    for _ in range(3):
+                        results = ShopWizard.search(stone)
+                        if cheapest is None or cheapest.price > results[0].price:
+                            cheapest = results[0]
+                    try:
+                        cheapest.buy()
+                        break
+                    except ItemOutOfStockException:
+                        pass
                 print('Bought ' + stone + '@' + str(cheapest.price) + 'np')
             TrainingSchool.pay_course(pet)
             print('Course paid')
