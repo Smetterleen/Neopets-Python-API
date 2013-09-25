@@ -3,7 +3,7 @@ import logging
 import traceback
 
 def main():
-    logging.basicConfig(filename='neopapi.log', level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(name)s|%(msg)s', datefmt="%x%X")
+    logging.basicConfig(filename='neopapi.log', level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(name)s|%(msg)s', datefmt="%x-%X")
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     
