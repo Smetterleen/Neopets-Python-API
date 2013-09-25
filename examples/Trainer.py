@@ -4,6 +4,9 @@ from neopapi.shops import ShopWizard
 from neopapi.explore.world.island.Exceptions import StatTooHighException
 from neopapi.core import Time
 from neopapi.shops.Exceptions import ItemOutOfStockException
+import logging
+
+logger = logging.getLogger(__name__)
 
 def run():
     while True:
@@ -11,25 +14,25 @@ def run():
         
         status = TrainingSchool.get_course_status(pet)
         if status == TrainingSchool.IDLE:
-            print('Status is Idle, starting course')
+            logger.info('Status is Idle, starting course')
             stats = StatOptimizer(TrainingSchool.get_status(pet))
             next_stat = stats.get_next_stat_to_train()
             try:
                 TrainingSchool.start_course(pet, next_stat)
-                print('Started training ' + next_stat)
+                logger.info('Started training ' + next_stat)
             except StatTooHighException:
                 TrainingSchool.start_course(pet, TrainingSchool.LEVEL)
-                print('Level too low, started training Level')
+                logger.info('Level too low, started training Level')
         elif status == TrainingSchool.AWAITING_PAYMENT:
-            print('Status is Awaiting Payment, paying course')
+            logger.info('Status is Awaiting Payment, paying course')
             stones = TrainingSchool.get_course_cost(pet)
-            print('Need ' + ', '.join(stones))
+            logger.info('Need ' + ', '.join(stones))
             stones_in_inventory = Inventory.contains(stones)
             for stone, stone_in_inventory in zip(stones, stones_in_inventory):
                 if stone_in_inventory:
-                    print(stone + ' already present in Inventory')
+                    logger.info(stone + ' already present in Inventory')
                     continue
-                print('Looking for ' + stone)
+                logger.info('Looking for ' + stone)
                 while True:
                     cheapest = None
                     for _ in range(3):
@@ -41,18 +44,18 @@ def run():
                         break
                     except ItemOutOfStockException:
                         pass
-                print('Bought ' + stone + '@' + str(cheapest.price) + 'np')
+                logger.info('Bought ' + stone + '@' + str(cheapest.price) + 'np')
             TrainingSchool.pay_course(pet)
-            print('Course paid')
+            logger.info('Course paid')
         elif status == TrainingSchool.TRAINING:
-            print('Status is Training, waiting for course to finish')
+            logger.info('Status is Training, waiting for course to finish')
             time_remaining = TrainingSchool.get_course_time_remaining(pet)
-            print('Training is done in %dh%dm%ds at %s' % ((time_remaining.seconds//3600), (time_remaining.seconds//60)%60, time_remaining.seconds%3600, (Time.NST_time() + time_remaining).strftime('%x %X')))
+            logger.info('Training is done in %dh%dm%ds at %s' % ((time_remaining.seconds//3600), (time_remaining.seconds//60)%60, time_remaining.seconds%3600, (Time.NST_time() + time_remaining).strftime('%x %X')))
             return (Time.NST_time() + time_remaining)
         elif status == TrainingSchool.FINISHED:
-            print('Status is Finished, finishing course')
+            logger.info('Status is Finished, finishing course')
             TrainingSchool.finish_course(pet)
-            print('Finished course')
+            logger.info('Finished course')
 
 class StatOptimizer:
     
