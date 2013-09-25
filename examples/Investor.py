@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 last_stock_buy_date = None
 
 def run():
-    global last_stock_buy_time
+    global last_stock_buy_date
     portfolio = StockMarket.portfolio()
     prices = StockMarket.get_stock_prices()
-    if not last_stock_buy_time or last_stock_buy_date < Time.NST_date():
+    if last_stock_buy_date is None or last_stock_buy_date < Time.NST_date():
         logger.info('Buying stocks')
         price = 15
-        while not last_stock_buy_time or last_stock_buy_date < Time.NST_date():
+        while last_stock_buy_date is None or last_stock_buy_date < Time.NST_date():
             logger.info('Looking for stocks priced at %dnp per share' % price)
             min_owned_stock = None
             for stock in [stock for stock in prices if stock.price == price]:

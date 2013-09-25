@@ -42,7 +42,6 @@ def main():
             tasks = ordered_tasks
     except Exception as e:
         logger.exception('Encoutered an Exception, mail was sent')
-        logger.errer()
         # Import smtplib for the actual sending function
         import smtplib
         
