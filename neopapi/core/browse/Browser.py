@@ -12,6 +12,8 @@ from http import cookiejar
 from neopapi.core.Exceptions import LoginRequiredException,\
     EndOfHistoryException
 
+logger = logging.getLogger(__name__)
+
 
 class Browser(object):
     """
@@ -65,11 +67,11 @@ class Browser(object):
     def _load_config(self, config):
         self.min_wait = int(config.get('delay_time_min', 0))
         if self.min_wait < 0:
-            logging.warn('Browser configuration: delay_time_min should not be less than 0, using default.')
+            logger.warn('Browser configuration: delay_time_min should not be less than 0, using default.')
             self.min_wait = 0
         self.max_wait = int(config.get('delay_time_max', 0))
         if self.max_wait < 0:
-            logging.warn('Browser configuration: delay_time_max should not be less than 0, using default.')
+            logger.warn('Browser configuration: delay_time_max should not be less than 0, using default.')
             self.max_wait = 0
         not_connected_action = config.get('not_connected_handling', 'exit')
         if not_connected_action.lower() == 'exit':
@@ -79,7 +81,7 @@ class Browser(object):
         elif re.match('retry\ \d*', not_connected_action.lower()):
             self.not_connected_handler = int(re.sub('[^\d]', '', not_connected_action))
         else:
-            logging.warn('Browser configuration: unrecognized option for not_connected_handling setting, using default.')
+            logger.warn('Browser configuration: unrecognized option for not_connected_handling setting, using default.')
             self.not_connected_handler = 0
     
     def _save_history(self, url, page):
@@ -107,7 +109,7 @@ class Browser(object):
         
         # Construct the url
         full_url = 'http://www.' + base_url + '/' + url
-        logging.debug('Browsing to ' + full_url)
+        logger.debug('Browsing to ' + full_url)
         
         # Construct the post data if it is available
         data = None
@@ -142,13 +144,13 @@ class Browser(object):
                 self.retries = 0
                 break
             except (HTTPError, URLError):
-                logging.error("Couldn't connect to " + full_url)
+                logger.error("Couldn't connect to " + full_url)
                 if self.not_connected_handler > 1 and self.retries < self.not_connected_handler:
                     time.sleep(1)
                     self.retries += 1
-                    logging.error('Retry connection: ' + self.retries)
+                    logger.error('Retry connection: ' + self.retries)
                     continue
-                logging.error('Exiting')
+                logger.error('Exiting')
                 raise Exception()
         
         # Save the cookies
@@ -190,7 +192,7 @@ class Browser(object):
             return self.last_visited_page()
         
         url_chain = find_path(self.last_visited_url(), url)
-        for url in url_chain[:-1]:
+        for url in url_chain[1:-1]:
             self._get(url, base_url, delay_ms=0)
         
         return self._get(url_chain[-1], base_url, delay_ms=delay)

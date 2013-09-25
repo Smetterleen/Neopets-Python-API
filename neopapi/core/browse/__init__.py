@@ -27,7 +27,7 @@ def register_page(url, links=[], reachable_from_everywhere=False):
 
 def _get_chain(from_page, to_page):
     if from_page == to_page:
-        return
+        return [from_page]
     # Simple breadth first search
     visited_pages = [from_page.url]
     queue = [[from_page]]
@@ -57,7 +57,9 @@ def find_path(from_url, to_url):
                 start_page.links.append(page.url)
     end_page = _sitemap[to_url]
     
-    chain = _get_chain(start_page, end_page)
+    # Drop the first page in the chain, because this is the current page, we do not need
+    # to browse to that page
+    chain = _get_chain(start_page, end_page)[1:]
     if chain is None:
         raise Exception('No path was found from "' + from_url + '" to "' + to_url + '"')
     return [page.url for page in chain]
