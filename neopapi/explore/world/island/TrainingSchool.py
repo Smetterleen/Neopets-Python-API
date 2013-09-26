@@ -37,14 +37,14 @@ def get_status(pet_name):
     if pet_td is None:
         raise PetNotFoundException(pet_name)
     
-    infos = page.find('b', text='Current Course Status').find_next().find_all('b')
+    infos = pet_td.find_parent('tr').find_next('tr').find_all('b')
     info = {}
-    info['level'] = int(infos[1].text)
-    info['strength'] = int(infos[2].text)
-    info['defence'] = int(infos[3].text)
-    info['movement'] = int(infos[4].text)
-    info['current_hp'] = int(infos[5].text.split(' / ')[0])
-    info['hp'] = int(infos[5].text.split(' / ')[1])
+    info['level'] = int(infos[0].text)
+    info['strength'] = int(infos[1].text)
+    info['defence'] = int(infos[2].text)
+    info['movement'] = int(infos[3].text)
+    info['current_hp'] = int(infos[4].text.split(' / ')[0])
+    info['hp'] = int(infos[4].text.split(' / ')[1])
     
     return info
 
@@ -99,7 +99,7 @@ def start_course(pet_name, stat):
         BROWSER.back()
         raise PetAlreadyOnCourseException(pet_name)
     
-    if 'No statistic can go above twice your pet' in result_page.text:
+    if 'No statistic can go above twice your pet' in result_page.text or 'Endurance can not go above three times your pet\'s level' in result_page.text:
         BROWSER.back()
         raise StatTooHighException(pet_name)
     

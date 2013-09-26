@@ -1,11 +1,16 @@
 import secrets
 import logging
 import traceback
+import sys
 
 def main():
     logging.basicConfig(filename='neopapi.log', level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(name)s|%(msg)s', datefmt="%x-%X")
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
+    
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    logging.getLogger().addHandler(ch)
     
     logger.info('-------------- Starting ---------------')
     try:
@@ -25,6 +30,7 @@ def main():
                 time.sleep(1)
                 tasks.append((Time.NST_time(), plugin))
         
+        User.logout()
         while True:
             if not User.is_logged_in(secrets.username):
                 logger.info("User is not logged in. Logging in")
@@ -49,7 +55,7 @@ def main():
         from email.mime.text import MIMEText
         
         # Create a text/plain message
-        msg = MIMEText(str(e) + '\n\n' + traceback.print_exc())
+        msg = MIMEText(str(e) + '\n\n' + (traceback.print_exc() or ''))
         
         # me == the sender's email address
         # you == the recipient's email address

@@ -53,20 +53,21 @@ def contains(item_list):
     returned.
     
     """
-    # FIXME: als er 2 dezelfde items in de lijst zitten, moet dit item
-    #        ook 2 keer in de inventory zitten
     inv_page = BROWSER.goto('inventory.phtml')
     
     is_string = isinstance(item_list, str)
     if is_string:
         item_list = [item_list]
+    item_list = item_list.copy()
     item_link_tags = inv_page.find_all('a', onclick=re.compile('openwin'))
     items_in_inventory = [False] * len(item_list)
     items_found = 0
     for item_link_tag in item_link_tags:
         name = item_link_tag.next_element.next_element.next_element
         if name in item_list:
-            items_in_inventory[item_list.index(name)] = True
+            item_index = item_list.index(name)
+            items_in_inventory[item_index] = True
+            item_list[item_index] = None
             items_found += 1
             if items_found >= len(item_list):
                 break
