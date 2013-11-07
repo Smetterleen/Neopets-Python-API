@@ -17,7 +17,7 @@ def portfolio():
     """
     page = BROWSER.goto('stockmarket.phtml?type=portfolio')
     stock_list = [stock_link.find_parent('tr') for stock_link in page.find_all('a', href=re.compile('.*company.*'))]
-    owned_stocks = {}
+    owned_stocks = Portfolio()
     for stock_element in stock_list:
         purchases = stock_element.find_next_sibling('tr').find('table').find_all('tr')[2:]
         purchase_list = []
@@ -30,7 +30,7 @@ def portfolio():
         parts = stock_element.find_all('td')
         name = parts[1].find('a').text
         owned_stocks[name] = purchase_list
-    return Portfolio(owned_stocks)
+    return owned_stocks
 
 def buy_stock(stock_name, amount=1000):
     """
@@ -110,7 +110,7 @@ def get_stock_prices():
     stocks = []
     for stock in [b_tag.text for b_tag in stock_list.find_all('b')]:
         stock_info = stock.split()
-        if stock_info[0] in stocks:
+        if stock_info[0] in [stock.name for stock in stocks]:
             break
         stock = Stock(name=stock_info[0], price=int(stock_info[1]), change=stock_info[2])
         stocks.append(stock)
@@ -136,14 +136,11 @@ class Purchase(object):
     def __repr__(self):
         return str(self.number) + '@' + str(self.price) + 'np'
 
-class Portfolio(object):
-    
-    def __init__(self, purchases):
-        self.purchases = purchases
+class Portfolio(dict):
     
     def amount_owned(self, stock_name):
         try:
-            stock_purchases = self.purchases[stock_name]
+            stock_purchases = self[stock_name]
             return sum([stock_purchase.amount for stock_purchase in stock_purchases])
         except KeyError:
             return 0

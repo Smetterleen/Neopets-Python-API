@@ -41,7 +41,7 @@ def run():
     
     logger.info('Looking for stocks to sell')
     for stock in prices:
-        if portfolio.amount_owned(stock.name) > 0 and stock.price > 60:
+        if portfolio.amount_owned(stock.name) > 0 and stock.price >= 60:
             amount_owned = portfolio.amount_owned(stock.name)
             logger.info('Selling %d shares of %s@%dnp' % (amount_owned, stock.name, stock.price))
             StockMarket.sell_stock(stock.name, amount_owned, pin=secrets.pin)
