@@ -1,4 +1,6 @@
 from neopapi.core.browse import register_page
+from neopapi.core.browse.Browser import BROWSER
+from neopapi.shops.Exceptions import PageException
 
 register_page('market.phtml?type=your',
               ['market.phtml?type=edit', 'market.phtml?type=till', 'market.phtml?type=sales',
@@ -27,17 +29,42 @@ def item_pages():
     Returns the amount of pages of stock in the users shop
     
     """
-    # TODO: Implement
-    raise NotImplementedError()
+    stock_page = BROWSER.goto('market.phtml?type=your')
+    pages = len(stock_page.find('form', action='market.phtml').find_previous('p').find_all('a')[1:])
+    return pages
 
 def items_in_stock(page=None):
     """
-    Returns all the items currently in the users shop stock. If
-    a page is given, only the items on that page will be returned.
+    Returns the items currently in the users shop stock and the amount
+    in stock. If a page is given, only the items on that page will be returned. 
+    Page numbers start at 1.
+    
+    @return: e.g. [('eo codestone', 5)] -> There are 5 eo codestones in stock
     
     """
-    # TODO: Implement
-    raise NotImplementedError()
+    stock_page = BROWSER.goto('market.phtml?type=your')
+    pages = stock_page.find('form', action='market.phtml').find_previous('p').find_all('a')[1:]
+    if page is not None:
+        if page > len(pages):
+            raise PageException()
+        elif page != 1:
+            stock_page_link = pages[page-1]['href']
+            stock_page = BROWSER._get(stock_page_link)
+        return _get_items_from_stock_page(stock_page)
+    
+    items_in_stock = []
+    for page in range(len(pages)):
+        if page != 0:
+            stock_page_link = pages[page]['href']
+            print(stock_page_link)
+            stock_page = BROWSER._get(stock_page_link)
+        items_in_stock.extend(_get_items_from_stock_page(stock_page))
+    return items_in_stock
+
+def _get_items_from_stock_page(stock_page):
+    item_trs = stock_page.find('form', action='process_market.phtml').find_all('tr')[1:]
+    print('\n'.join([str(x) for x in item_trs]))
+    return []
 
 def update_item_pricing(item_price_list, page=None, pin=None):
     """

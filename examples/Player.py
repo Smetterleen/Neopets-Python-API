@@ -2,6 +2,8 @@ import secrets
 import logging
 import traceback
 import sys
+import Maller
+from datetime import datetime
 
 def main():
     logging.basicConfig(filename='neopapi.log', level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(name)s|%(msg)s', datefmt="%x-%X")
@@ -24,7 +26,8 @@ def main():
         
         tasks = []
         
-        plugins = [Investor, Trainer, Banker]
+#        plugins = [Investor, Trainer, Banker]
+        plugins = [Maller]
         
         for plugin in plugins:
                 time.sleep(1)
@@ -44,6 +47,8 @@ def main():
                 time.sleep((first_task[0] - Time.NST_time()).total_seconds())
             logger.info('Running ' + first_task[1].__name__)
             next_task_time = first_task[1].run()
+            if not isinstance(next_task_time, datetime):
+                raise Exception('Task did not return datetime')
             ordered_tasks.append((next_task_time, first_task[1]))
             tasks = ordered_tasks
     except Exception as e:
