@@ -5,12 +5,13 @@ from neopapi.explore.world.island.Exceptions import StatTooHighException
 from neopapi.core import Time
 from neopapi.shops.Exceptions import ItemOutOfStockException
 import logging
+import secrets
 
 logger = logging.getLogger(__name__)
 
 def run():
     while True:
-        pet = "Icicle202"
+        pet = secrets.pet
         
         status = TrainingSchool.get_course_status(pet)
         if status == TrainingSchool.IDLE:
@@ -50,7 +51,7 @@ def run():
         elif status == TrainingSchool.TRAINING:
             logger.info('Status is Training, waiting for course to finish')
             time_remaining = TrainingSchool.get_course_time_remaining(pet)
-            logger.info('Training is done in %dh%dm%ds at %s' % ((time_remaining.seconds//3600), (time_remaining.seconds//60)%60, time_remaining.seconds%3600, (Time.NST_time() + time_remaining).strftime('%x %X')))
+            logger.info('Training is done in %dh%dm%ds at %s' % ((time_remaining.seconds//3600), (time_remaining.seconds//60)%60, time_remaining.seconds%60, (Time.NST_time() + time_remaining).strftime('%x %X')))
             return (Time.NST_time() + time_remaining)
         elif status == TrainingSchool.FINISHED:
             logger.info('Status is Finished, finishing course')

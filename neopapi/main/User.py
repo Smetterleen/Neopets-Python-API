@@ -2,6 +2,9 @@ from neopapi.core.browse.Browser import BROWSER
 import re
 from neopapi.core.Exceptions import LoginRequiredException
 from neopapi.core.browse import register_page
+from neopapi.main.Exceptions import LockedOutException, WrongPasswordException,\
+    WrongUsernameException
+import secrets
 
 register_page('logout.phtml', reachable_from_everywhere=True)
 
@@ -27,9 +30,16 @@ def login(username, password):
               'password' : password,
               'username' : username}
             
-    index = BROWSER.post(url, values)
-            
-    # TODO: do error handling
+    page = BROWSER.post(url, values)
+    
+    if 'Incorrect username in cookie' in page.text:
+        raise WrongUsernameException(username)
+    if 'Bad Password' in page.text:
+        raise WrongPasswordException(username)
+    
+    if 'Sorry, you have tried too many times' in page.text:
+        raise LockedOutException(username)
+    
     if is_logged_in(username):
         return True
     return False
