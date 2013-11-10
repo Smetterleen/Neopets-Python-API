@@ -1,4 +1,5 @@
 from neopapi.core.browse import register_page
+from neopapi.core.browse.Browser import BROWSER
 
 register_page('market.phtml?type=your',
               ['market.phtml?type=edit', 'market.phtml?type=till', 'market.phtml?type=sales',
@@ -27,8 +28,13 @@ def item_pages():
     Returns the amount of pages of stock in the users shop
     
     """
-    # TODO: Implement
-    raise NotImplementedError()
+    page = BROWSER.goto('market.phtml?type=your')
+    print(page.prettify('UTF-8'))
+    line = page.find('input', attrs={'name': 'subbyprev'}).next_sibling.text
+    unique_items = int(line.split()[6])
+    pages = (unique_items // 30) + 1
+    
+    return pages
 
 def items_in_stock(page=None):
     """
