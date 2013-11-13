@@ -15,5 +15,7 @@ class ItemOutOfStockException(ShopWizardException):
 class UserShopException(Exception):
     pass
 
-class PageException(UserShopException):
+class NotEnoughMoneyInTillException(UserShopException):
     pass
+
+class ShopStockPageIndexError(UserShopException):

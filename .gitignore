@@ -36,4 +36,8 @@ nosetests.xml
 data
 test.py
 examples/secrets.py
+<<<<<<< HEAD
+/__pycache__
+=======
 neopapi.log
+>>>>>>> branch 'master' of https://github.com/Smetterleen/Neopets-Python-API.git

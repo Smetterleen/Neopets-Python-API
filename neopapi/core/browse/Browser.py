@@ -166,6 +166,7 @@ class Browser(object):
             f = gzip.GzipFile(fileobj=buf)
             page = f.read()
         # Maybe add more encoding types in the future?
+        
         page = BeautifulSoup(page)
         
         self.time_of_last_get = current_time

@@ -1,6 +1,7 @@
 import secrets
 import logging
 import traceback
+from neopapi.shops import Shop
 import sys
 import Maller
 from datetime import datetime
@@ -22,7 +23,7 @@ def main():
         from neopapi.core import Time
         from datetime import timedelta
         from neopapi.main import User
-        import Investor
+        import Investor, New
         
         tasks = []
         
@@ -33,7 +34,6 @@ def main():
                 time.sleep(1)
                 tasks.append((Time.NST_time(), plugin))
         
-        User.logout()
         while True:
             if not User.is_logged_in(secrets.username):
                 logger.info("User is not logged in. Logging in")
