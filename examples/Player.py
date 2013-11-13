@@ -27,7 +27,7 @@ def main():
         tasks = []
         
 #        plugins = [Investor, Trainer, Banker]
-        plugins = [Maller]
+        plugins = [Investor, Banker, Trainer]
         
         for plugin in plugins:
                 time.sleep(1)
