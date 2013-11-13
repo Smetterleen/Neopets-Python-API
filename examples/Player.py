@@ -21,17 +21,16 @@ def main():
         from neopapi.core import Time
         from datetime import timedelta
         from neopapi.main import User
-        import Investor
+        import Investor, New
         
         tasks = []
         
-        plugins = [Investor, Trainer, Banker]
+        plugins = [New]
         
         for plugin in plugins:
                 time.sleep(1)
                 tasks.append((Time.NST_time(), plugin))
         
-        User.logout()
         while True:
             if not User.is_logged_in(secrets.username):
                 logger.info("User is not logged in. Logging in")

@@ -4,7 +4,6 @@ from neopapi.core.Exceptions import LoginRequiredException
 from neopapi.core.browse import register_page
 from neopapi.main.Exceptions import LockedOutException, WrongPasswordException,\
     WrongUsernameException
-import secrets
 
 register_page('logout.phtml', reachable_from_everywhere=True)
 
