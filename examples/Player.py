@@ -1,9 +1,7 @@
 import secrets
 import logging
 import traceback
-from neopapi.shops import Shop
 import sys
-import Maller
 from datetime import datetime
 
 def main():
@@ -17,18 +15,16 @@ def main():
     
     logger.info('-------------- Starting ---------------')
     try:
-        import Trainer
-        import time
-        import Banker
-        from neopapi.core import Time
         from datetime import timedelta
+        from neopapi.core import Time
         from neopapi.main import User
-        import Investor, New
+        import time
+        import Trainer, Banker, Investor, Maller
         
         tasks = []
         
 #        plugins = [Investor, Trainer, Banker]
-        plugins = [Investor, Banker, Trainer]
+        plugins = [Maller]
         
         for plugin in plugins:
                 time.sleep(1)

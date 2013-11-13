@@ -44,6 +44,8 @@ def amount_of_items_in_stock():
 def _items_on_page(page):
     if page < 1 or page > stock_pages():
         raise ShopStockPageIndexError()
+    if not re.match('.*market\.phtml.*\&type\=your.*', BROWSER.last_visited_url()):
+        BROWSER.goto('market.phtml?type=your') 
     page = BROWSER._get('market.phtml?order_by=id&type=your&lim=%d' % (page * 30))
     trs_of_interest = page.find('form', action='process_market.phtml').find('tr').find_all_next('tr')[:30]
     item_trs = []
@@ -70,9 +72,25 @@ def items_in_stock(page=None):
         return _items_on_page(page)
     items = []
     for page in range(1, stock_pages()+1):
-        print(page)
         items.extend(_items_on_page(page))
     return items
+
+def present_in_stock(items=[]):
+    """
+    Returns an array of boolean values corresponding to wether the given item at 
+    that index is in the users shop stock or not
+    
+    """
+    present = [False] * len(items)
+    for page in range(1, stock_pages()+1):
+        items_on_page = _items_on_page(page)
+        for item_index in range(len(items)):
+            if not present[item_index]:
+                if items[item_index] in [item_on_page.name for item_on_page in items_on_page]:
+                    present[item_index] = True
+                if all(present):
+                    break
+    return present
 
 def update_item_pricing(item_price_list, page=None, pin=None):
     """
@@ -175,21 +193,14 @@ def clear_sales_history():
     
 class StockedItem(object):
     
-    def __init__(self, name, price, stock, item_type):
+    def __init__(self, name, price, stock, item_type=None):
         self.name = name
         self.price = price
         self.stock = stock
         self.item_type = item_type
     
-    def __str__(self):
-        return '%s (%d in stock) is priced at %dnp' % (self.name, self.stock, self.price)
-    
-class ItemPricing(object):
-    
-    def __init__(self, item_name, price, remove=False):
-        self.item_name = item_name
-        self.price = price
-        self.remove = remove
+    def __repr__(self):
+        return '%s (stock: %d) @ %dnp' % (self.name, self.stock, self.price)
         
 class Sale(object):
     
@@ -199,5 +210,5 @@ class Sale(object):
         self.buyer_name = buyer_name
         self.price = price
     
-    def __str__(self):
+    def __repr__(self):
         return '%s bought %s for %dnp on %s' % (self.buyer_name, self.item_name, self.price, self.date.strftime('%d/%m/%Y'))

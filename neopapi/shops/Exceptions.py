@@ -19,3 +19,4 @@ class NotEnoughMoneyInTillException(UserShopException):
     pass
 
 class ShopStockPageIndexError(UserShopException):
+    pass
