@@ -56,12 +56,14 @@ def _items_on_page(page):
         item = StockedItem(item_info[0].text, int(item_tr.find('input', {'name': re.compile('oldcost_\d*')})['value']), int(item_info[2].text), item_info[3].text)
         items.append(item)
     return items
-    
 
 def items_in_stock(page=None):
     """
-    Returns all the items currently in the users shop stock. If
-    a page is given, only the items on that page will be returned.
+    Returns the items currently in the users shop stock and the amount
+    in stock. If a page is given, only the items on that page will be returned. 
+    Page numbers start at 1.
+    
+    @return: e.g. [('eo codestone', 5)] -> There are 5 eo codestones in stock
     
     """
     if page is not None:

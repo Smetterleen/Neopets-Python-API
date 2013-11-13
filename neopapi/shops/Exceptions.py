@@ -12,8 +12,10 @@ class ItemOutOfStockException(ShopWizardException):
     def __init__(self, item_name):
         super(ItemOutOfStockException, self).__init__('Item is out of stock: ' + item_name)
 
-class NotEnoughMoneyInTillException(Exception):
+class UserShopException(Exception):
     pass
 
-class ShopStockPageIndexError(Exception):
+class NotEnoughMoneyInTillException(UserShopException):
     pass
+
+class ShopStockPageIndexError(UserShopException):
